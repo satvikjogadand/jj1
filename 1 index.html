@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satvik Jogadand | 3D Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: white;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+        }
+
+        .container {
+            position: absolute;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: grid;
+            place-content: center;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 32px;
+            z-index: 20;
+        }
+
+        header .logo {
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+        }
+
+        header nav {
+            display: flex;
+            gap: 32px;
+        }
+
+        header nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            position: relative;
+        }
+
+        header nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #4285F4;
+            transition: width 0.3s;
+        }
+
+        header nav a:hover::after {
+            width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #f0131e, #4285F4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        p {
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            opacity: 0.8;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(45deg, #f0131e, #4285F4);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(240, 19, 30, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(240, 19, 30, 0.4);
+        }
+
+        .scroll-down {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .scroll-down p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .scroll-down .arrow {
+            width: 20px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .scroll-down .arrow::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: white;
+            border-radius: 50%;
+            animation: scrollDown 1.5s infinite;
+        }
+
+        @keyframes scrollDown {
+            0% { top: 8px; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 20px; opacity: 0; }
+        }
+
+        /* Sections */
+        section {
+            position: absolute;
+            top: 100vh;
+            width: 100%;
+            min-height: 100vh;
+            padding: 100px 32px;
+            background-color: #121212;
+            z-index: 15;
+        }
+
+        .section-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 64px;
+            text-align: center;
+        }
+
+        /* Experience */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .experience-card {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 16px;
+            padding: 32px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .experience-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .exp-title {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .exp-company {
+            color: #4285F4;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .exp-duration {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 48px;
+            }
+
+            p {
+                font-size: 18px;
+            }
+
+            header nav {
+                display: none;
+            }
+
+            .experience-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Scene -->
+    <canvas id="canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <a href="#" class="logo">SJ</a>
+            <nav>
+                <a href="#about">About</a>
+                <a href="#experience">Experience</a>
+                <a href="#skills">Skills</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <h1>Satvik Jogadand</h1>
+            <p>Insurance & Risk Management Professional | PPO @ Bajaj Allianz | PGDM '25 – NIA</p>
+            <a href="#about" class="btn">Explore Portfolio</a>
+        </div>
+
+        <div class="scroll-down">
+            <p>Scroll Down</p>
+            <div class="arrow"></div>
+        </div>
+    </div>
+
+    <!-- Sections -->
+    <section id="about">
+        <h2 class="section-title">About Me</h2>
+        <div class="main-content">
+            <p>Strategic insurance professional with expertise in risk management, leadership, and problem-solving. Passionate about leveraging technology to transform the insurance industry and create innovative solutions.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; width: 100%; margin-top: 64px;">
+                <div>
+                    <h3 style="margin-bottom: 16px; color: #4285F4;">Top Skills</h3>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 8px;">Management</li>
+                        <li style="margin-bottom: 8px;">Leadership</li>
+                        <li style="margin-bottom: 8px;">Problem Solving</li>
+                        <li style="margin-bottom: 8px;">Risk Assessment</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 16px; color: #4285F4;">Languages</h3>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 8px;">English (Professional)</li>
+                        <li style="margin-bottom: 8px;">Hindi (Native)</li>
+                        <li style="margin-bottom: 8px;">Marathi (Elementary)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 16px; color: #4285F4;">Certifications</h3>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 8px;">Managing Employee Performance</li>
+                        <li style="margin-bottom: 8px;">AI For Everyone</li>
+                        <li style="margin-bottom: 8px;">The hidden value – Lean</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <h2 class="section-title">Experience</h2>
+        <div class="experience-grid">
+            <div class="experience-card">
+                <h3 class="exp-title">Summer Internship</h3>
+                <p class="exp-company">Bajaj Allianz General Insurance</p>
+                <p class="exp-duration">May 2024 - July 2024 (3 months) · India</p>
+                <p>Gained hands-on experience in insurance operations and risk management strategies.</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">Student Volunteer</h3>
+                <p class="exp-company">The Climate Reality Project</p>
+                <p class="exp-duration">November 2019 - March 2020 (5 months) · Pune, India</p>
+                <p>Contributed to environmental awareness campaigns and sustainability initiatives.</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">Summer Internship</h3>
+                <p class="exp-company">UltraTech Cement</p>
+                <p class="exp-duration">April 2019 - May 2019 (2 months) · Madhya Pradesh, India</p>
+                <p>Learned about industrial operations and corporate management practices.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2 class="section-title">Education & Skills</h2>
+        <div class="experience-grid">
+            <div class="experience-card">
+                <h3 class="exp-title">PGDM, Insurance & Risk Mgmt</h3>
+                <p class="exp-company">National Insurance Academy</p>
+                <p class="exp-duration">July 2023 - March 2025</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">BBA, HR & Finance</h3>
+                <p class="exp-company">Symbiosis Centre for Management Studies</p>
+                <p class="exp-duration">2018 - 2021 · Pune</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">IRM Level 1</h3>
+                <p class="exp-company">Institute of Risk Management</p>
+                <p class="exp-duration">March 2025</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title">Contact</h2>
+        <div class="experience-grid" style="max-width: 600px;">
+            <div class="experience-card">
+                <h3 class="exp-title">Email</h3>
+                <p>satvikjogadand@gmail.com</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">Phone</h3>
+                <p>6261414868</p>
+            </div>
+            <div class="experience-card">
+                <h3 class="exp-title">LinkedIn</h3>
+                <p>linkedin.com/in/satvikjogadand</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Three.js Scene Setup
+        const canvas = document.querySelector('canvas');
+        const scene = new THREE.Scene();
+        
+        // Camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({
+            canvas,
+            antialias: true,
+            alpha: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particleCount = 1000;
+        
+        const posArray = new Float32Array(particleCount * 3);
+        
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0x4285F4,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        // Torus (Main 3D Object)
+        const torusGeometry = new THREE.TorusGeometry(1, 0.4, 16, 32);
+        const torusMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xf0131e,
+            wireframe: true
+        });
+        const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+        scene.add(torus);
+        
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            torus.rotation.x += 0.005;
+            torus.rotation.y += 0.005;
+            
+            particlesMesh.rotation.x += 0.0005;
+            particlesMesh.rotation.y += 0.0005;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Scroll Animation
+        const aboutSection = document.querySelector('#about');
+        const experienceSection = document.querySelector('#experience');
+        const skillsSection = document.querySelector('#skills');
+        const contactSection = document.querySelector('#contact');
+        
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Parallax effect on torus
+            torus.rotation.x = scrollY / 1000;
+            torus.rotation.y = scrollY / 1000;
+            
+            // Sections animation
+            if (scrollY > windowHeight * 0.5) {
+                aboutSection.style.opacity = '1';
+                aboutSection.style.transform = 'translateY(0)';
+            }
+            
+            if (scrollY > windowHeight * 1.5) {
+                experienceSection.style.opacity = '1';
+                experienceSection.style.transform = 'translateY(0)';
+            }
+            
+            if (scrollY > windowHeight * 2.5) {
+                skillsSection.style.opacity = '1';
+                skillsSection.style.transform = 'translateY(0)';
+            }
+            
+            if (scrollY > windowHeight * 3.5) {
+                contactSection.style.opacity = '1';
+                contactSection.style.transform = 'translateY(0)';
+            }
+        });
+        
+        // Initialize sections position
+        aboutSection.style.opacity = '0';
+        aboutSection.style.transform = 'translateY(50px)';
+        aboutSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        experienceSection.style.opacity = '0';
+        experienceSection.style.transform = 'translateY(50px)';
+        experienceSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        skillsSection.style.opacity = '0';
+        skillsSection.style.transform = 'translateY(50px)';
+        skillsSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        contactSection.style.opacity = '0';
+        contactSection.style.transform = 'translateY(50px)';
+        contactSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
